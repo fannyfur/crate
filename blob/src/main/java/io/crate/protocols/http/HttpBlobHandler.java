@@ -161,12 +161,12 @@ public class HttpBlobHandler extends SimpleChannelInboundHandler<Object> {
             handleBlobRequest(request, null);
         } else if (msg instanceof HttpContent) {
             if (currentMessage == null) {
-                // the chunk is probably from a regular non-blob request.
+                // We may continue receiving chunks after having already responded with an error (e.g. conflict)
+                // Discard the messages because the next handler in the pipeline doesn't support chunks
+                ((HttpContent) msg).release();
                 reset();
-                ctx.fireChannelRead(msg);
                 return;
             }
-
             handleBlobRequest(currentMessage, (HttpContent) msg);
         } else {
             // Neither HttpMessage or HttpChunk
