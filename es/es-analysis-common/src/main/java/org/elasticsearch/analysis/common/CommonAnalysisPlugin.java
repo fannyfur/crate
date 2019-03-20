@@ -44,7 +44,6 @@ import org.apache.lucene.analysis.commongrams.CommonGramsFilter;
 import org.apache.lucene.analysis.core.DecimalDigitFilter;
 import org.apache.lucene.analysis.core.KeywordTokenizer;
 import org.apache.lucene.analysis.core.LetterTokenizer;
-import org.apache.lucene.analysis.core.LowerCaseTokenizer;
 import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.core.UpperCaseFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
@@ -308,7 +307,7 @@ public class CommonAnalysisPlugin extends Plugin implements AnalysisPlugin {
             () -> new PatternAnalyzer(Regex.compile("\\W+" /*PatternAnalyzer.NON_WORD_PATTERN*/, null), true,
             CharArraySet.EMPTY_SET)));
         analyzers.add(new PreBuiltAnalyzerProviderFactory("snowball", CachingStrategy.LUCENE,
-            () -> new SnowballAnalyzer("English", StopAnalyzer.ENGLISH_STOP_WORDS_SET)));
+            () -> new SnowballAnalyzer("English", EnglishAnalyzer.ENGLISH_STOP_WORDS_SET)));
 
         // Language analyzers:
         analyzers.add(new PreBuiltAnalyzerProviderFactory("arabic", CachingStrategy.LUCENE, ArabicAnalyzer::new));
@@ -391,15 +390,7 @@ public class CommonAnalysisPlugin extends Plugin implements AnalysisPlugin {
                         DelimitedPayloadTokenFilterFactory.DEFAULT_ENCODER)));
         filters.add(PreConfiguredTokenFilter.singleton("dutch_stem", false, input -> new SnowballFilter(input, new DutchStemmer())));
         filters.add(PreConfiguredTokenFilter.singleton("edge_ngram", false, input ->
-                new EdgeNGramTokenFilter(input, EdgeNGramTokenFilter.DEFAULT_MIN_GRAM_SIZE, EdgeNGramTokenFilter.DEFAULT_MAX_GRAM_SIZE)));
-        filters.add(PreConfiguredTokenFilter.singletonWithVersion("edgeNGram", false, (reader, version) -> {
-            if (version.onOrAfter(org.elasticsearch.Version.ES_V_6_5_1)) {
-                DEPRECATION_LOGGER.deprecatedAndMaybeLog("edgeNGram_deprecation",
-                        "The [edgeNGram] token filter name is deprecated and will be removed in a future version. "
-                                + "Please change the filter name to [edge_ngram] instead.");
-            }
-            return new EdgeNGramTokenFilter(reader, EdgeNGramTokenFilter.DEFAULT_MIN_GRAM_SIZE, EdgeNGramTokenFilter.DEFAULT_MAX_GRAM_SIZE);
-            }));
+            new EdgeNGramTokenFilter(input, 1)));
         filters.add(PreConfiguredTokenFilter.singleton("elision", true,
                 input -> new ElisionFilter(input, FrenchAnalyzer.DEFAULT_ARTICLES)));
         filters.add(PreConfiguredTokenFilter.singleton("french_stem", false, input -> new SnowballFilter(input, new FrenchStemmer())));
@@ -415,15 +406,7 @@ public class CommonAnalysisPlugin extends Plugin implements AnalysisPlugin {
                 new LimitTokenCountFilter(input,
                         LimitTokenCountFilterFactory.DEFAULT_MAX_TOKEN_COUNT,
                         LimitTokenCountFilterFactory.DEFAULT_CONSUME_ALL_TOKENS)));
-        filters.add(PreConfiguredTokenFilter.singleton("ngram", false, NGramTokenFilter::new));
-        filters.add(PreConfiguredTokenFilter.singletonWithVersion("nGram", false, (reader, version) -> {
-            if (version.onOrAfter(org.elasticsearch.Version.ES_V_6_5_1)) {
-                DEPRECATION_LOGGER.deprecatedAndMaybeLog("nGram_deprecation",
-                        "The [nGram] token filter name is deprecated and will be removed in a future version. "
-                                + "Please change the filter name to [ngram] instead.");
-            }
-            return new NGramTokenFilter(reader);
-        }));
+//        filters.add(PreConfiguredTokenFilter.singleton("ngram", false, NGramTokenFilterFactory::new));
         filters.add(PreConfiguredTokenFilter.singleton("persian_normalization", true, PersianNormalizationFilter::new));
         filters.add(PreConfiguredTokenFilter.singleton("porter_stem", false, PorterStemFilter::new));
         filters.add(PreConfiguredTokenFilter.singleton("reverse", false, ReverseStringFilter::new));
@@ -445,7 +428,7 @@ public class CommonAnalysisPlugin extends Plugin implements AnalysisPlugin {
         filters.add(PreConfiguredTokenFilter.singleton("sorani_normalization", true, SoraniNormalizationFilter::new));
         filters.add(PreConfiguredTokenFilter.singleton("stemmer", false, PorterStemFilter::new));
         // The stop filter is in lucene-core but the English stop words set is in lucene-analyzers-common
-        filters.add(PreConfiguredTokenFilter.singleton("stop", false, input -> new StopFilter(input, StopAnalyzer.ENGLISH_STOP_WORDS_SET)));
+        filters.add(PreConfiguredTokenFilter.singleton("stop", false, input -> new StopFilter(input, EnglishAnalyzer.ENGLISH_STOP_WORDS_SET)));
         filters.add(PreConfiguredTokenFilter.singleton("trim", true, TrimFilter::new));
         filters.add(PreConfiguredTokenFilter.singleton("truncate", false, input -> new TruncateTokenFilter(input, 10)));
         filters.add(PreConfiguredTokenFilter.singleton("type_as_payload", false, TypeAsPayloadTokenFilter::new));
@@ -482,7 +465,7 @@ public class CommonAnalysisPlugin extends Plugin implements AnalysisPlugin {
             () -> new EdgeNGramTokenizer(EdgeNGramTokenizer.DEFAULT_MIN_GRAM_SIZE, EdgeNGramTokenizer.DEFAULT_MAX_GRAM_SIZE), null));
         tokenizers.add(PreConfiguredTokenizer.singleton("pattern", () -> new PatternTokenizer(Regex.compile("\\W+", null), -1), null));
         tokenizers.add(PreConfiguredTokenizer.singleton("thai", ThaiTokenizer::new, null));
-        tokenizers.add(PreConfiguredTokenizer.singleton("lowercase", LowerCaseTokenizer::new, () -> new TokenFilterFactory() {
+        tokenizers.add(PreConfiguredTokenizer.singleton("lowercase", XLowerCaseTokenizer::new, () -> new TokenFilterFactory() {
             @Override
             public String name() {
                 return "lowercase";

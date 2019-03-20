@@ -20,13 +20,15 @@
 package org.elasticsearch.analysis.common;
 
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.core.LowerCaseTokenizer;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 import org.elasticsearch.index.analysis.AbstractTokenizerFactory;
 import org.elasticsearch.index.analysis.MultiTermAwareComponent;
 
+@Deprecated
+// Elastic set it to deprecated and will remove it, LowerCaseTokenizer is removed in Lucene 8.0.0,
+// a LowerCaseFilter should be used instead
 public class LowerCaseTokenizerFactory extends AbstractTokenizerFactory implements MultiTermAwareComponent {
 
     LowerCaseTokenizerFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
@@ -35,7 +37,7 @@ public class LowerCaseTokenizerFactory extends AbstractTokenizerFactory implemen
 
     @Override
     public Tokenizer create() {
-        return new LowerCaseTokenizer();
+        return new XLowerCaseTokenizer();
     }
 
     @Override

@@ -55,6 +55,7 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortedNumericSortField;
 import org.apache.lucene.search.TopFieldDocs;
+import org.apache.lucene.search.similarity.LegacyBM25Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
@@ -286,6 +287,7 @@ public class LuceneOrderedDocCollectorTest extends RandomizedTest {
         addDoc(w, fieldType, "Arthurr"); // not "Arthur" to lower score
         w.commit();
         IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(w, true, true));
+        searcher.setSimilarity(new LegacyBM25Similarity());
 
         List<LuceneCollectorExpression<?>> columnReferences = Collections.singletonList(new ScoreCollectorExpression());
         Query query = fieldType.fuzzyQuery("Arthur", Fuzziness.AUTO, 2, 3, true);

@@ -116,6 +116,8 @@ final class StoreRecovery {
             indexShard.mapperService().merge(sourceMetaData, MapperService.MergeReason.MAPPING_RECOVERY, true);
             // now that the mapping is merged we can validate the index sort configuration.
             Sort indexSort = indexShard.getIndexSort();
+            //final boolean hasNested = indexShard.mapperService().hasNested();
+            final boolean hasNested = false;
             final boolean isSplit = sourceMetaData.getNumberOfShards() < indexShard.indexSettings().getNumberOfShards();
             return executeRecovery(indexShard, () -> {
                 logger.debug("starting recovery from local shards {}", shards);
@@ -124,9 +126,9 @@ final class StoreRecovery {
                     final Directory[] sources = shards.stream().map(LocalShardSnapshot::getSnapshotDirectory).toArray(Directory[]::new);
                     final long maxSeqNo = shards.stream().mapToLong(LocalShardSnapshot::maxSeqNo).max().getAsLong();
                     final long maxUnsafeAutoIdTimestamp =
-                            shards.stream().mapToLong(LocalShardSnapshot::maxUnsafeAutoIdTimestamp).max().getAsLong();
+                        shards.stream().mapToLong(LocalShardSnapshot::maxUnsafeAutoIdTimestamp).max().getAsLong();
                     addIndices(indexShard.recoveryState().getIndex(), directory, indexSort, sources, maxSeqNo, maxUnsafeAutoIdTimestamp,
-                        indexShard.indexSettings().getIndexMetaData(), indexShard.shardId().id(), isSplit);
+                        indexShard.indexSettings().getIndexMetaData(), indexShard.shardId().id(), isSplit, hasNested);
                     internalRecoverFromStore(indexShard);
                     // just trigger a merge to do housekeeping on the
                     // copied segments - we will also see them in stats etc.
@@ -141,8 +143,8 @@ final class StoreRecovery {
     }
 
     void addIndices(final RecoveryState.Index indexRecoveryStats, final Directory target, final Sort indexSort, final Directory[] sources,
-            final long maxSeqNo, final long maxUnsafeAutoIdTimestamp, IndexMetaData indexMetaData, int shardId, boolean split) throws IOException {
-
+                    final long maxSeqNo, final long maxUnsafeAutoIdTimestamp, IndexMetaData indexMetaData, int shardId, boolean split,
+                    boolean hasNested) throws IOException {
         // clean target directory (if previous recovery attempt failed) and create a fresh segment file with the proper lucene version
         Lucene.cleanLuceneIndex(target);
         assert sources.length > 0;
