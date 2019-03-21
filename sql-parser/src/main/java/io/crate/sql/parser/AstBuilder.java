@@ -191,6 +191,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -1606,6 +1607,12 @@ class AstBuilder extends SqlBaseBaseVisitor<Node> {
             return CollectionColumnType.array((ColumnType) visit(context.arrayTypeDefinition().dataType()));
         } else if (context.setTypeDefinition() != null) {
             return CollectionColumnType.set((ColumnType) visit(context.setTypeDefinition().dataType()));
+        } else if (context.baseDataType() != null) {
+            SqlBaseParser.BaseDataTypeContext typeContext = context.baseDataType();
+            String type = typeContext.children.stream()
+                .map(c -> c.getText().toLowerCase(Locale.ENGLISH))
+                .collect(Collectors.joining(" "));
+            return new ColumnType(type);
         }
         return new ColumnType(context.getText().toLowerCase(Locale.ENGLISH));
     }

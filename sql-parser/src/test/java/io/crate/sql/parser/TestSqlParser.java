@@ -25,6 +25,7 @@ package io.crate.sql.parser;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import io.crate.sql.tree.*;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,6 +39,7 @@ import static io.crate.sql.tree.QueryUtil.table;
 import static java.lang.String.format;
 import static java.util.Collections.nCopies;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -423,6 +425,13 @@ public class TestSqlParser {
         expectedException.expect(ParsingException.class);
         expectedException.expectMessage("line 1:1: statement is too large (stack overflow while parsing)");
         SqlParser.createStatement("SELECT " + Joiner.on(" OR ").join(nCopies(4000, "x = y")));
+    }
+
+    @Test
+    public void testDataTypesWithWhitespaceCharacters() {
+        Cast cast = (Cast) SqlParser.createExpression("1::double precision");
+        Assert.assertThat(cast.getType().type(), is(ColumnType.Type.PRIMITIVE));
+        Assert.assertThat(cast.getType().name(), is("double precision"));
     }
 
     private static void assertStatement(String query, Statement expected) {
