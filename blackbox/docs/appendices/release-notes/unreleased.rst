@@ -41,7 +41,30 @@ Unreleased Changes
 Breaking Changes
 ================
 
-- Removed the HTTP pipelining functionality. We are not aware of any client 
+- Renamed CrateDB data types to the corresponding PostgreSQL data types.
+
+   ::
+
+      +--------------+----------------------+
+      | Current Name | New Name             |
+      +==============+======================+
+      | ``short``    | ``smallint``         |
+      +--------------+----------------------+
+      | ``long``     | ``bigint``           |
+      +--------------+----------------------+
+      | ``float``    | ``real``             |
+      +--------------+----------------------+
+      | ``double``   | ``double precision`` |
+      +--------------+----------------------+
+      | ``byte``     | ``char``             |
+      +--------------+----------------------+
+      | ``string``   | ``text``             |
+      +--------------+----------------------+
+
+  See :ref:`data-types` for more detailed information. The old data types names
+  are registered as aliases for backward comparability.
+
+- Removed the HTTP pipelining functionality. We are not aware of any client
   using this functionality.
 
 - Changed the ordering of columns to be based on their position in the
