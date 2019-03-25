@@ -531,14 +531,14 @@ rerouteOption
 dataType
     : IDENTIFIER
     | quotedIdentifier
-    | baseDataType
+    | definedDataType
     | nonReserved
     | objectTypeDefinition
     | arrayTypeDefinition
     | setTypeDefinition
     ;
 
-baseDataType
+definedDataType
     : DOUBLE PRECISION
     ;
 

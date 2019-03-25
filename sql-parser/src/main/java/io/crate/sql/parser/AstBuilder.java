@@ -1607,8 +1607,8 @@ class AstBuilder extends SqlBaseBaseVisitor<Node> {
             return CollectionColumnType.array((ColumnType) visit(context.arrayTypeDefinition().dataType()));
         } else if (context.setTypeDefinition() != null) {
             return CollectionColumnType.set((ColumnType) visit(context.setTypeDefinition().dataType()));
-        } else if (context.baseDataType() != null) {
-            SqlBaseParser.BaseDataTypeContext typeContext = context.baseDataType();
+        } else if (context.definedDataType() != null) {
+            SqlBaseParser.DefinedDataTypeContext typeContext = context.definedDataType();
             String type = typeContext.children.stream()
                 .map(c -> c.getText().toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.joining(" "));
