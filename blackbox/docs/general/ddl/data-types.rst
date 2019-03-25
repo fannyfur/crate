@@ -34,7 +34,7 @@ These are values that are atomic, not composed of separate parts, no containers
 or collections.
 
 * `boolean`_
-* `char <numeric types_>`_
+* `char <special character types_>`_
 * `smallint <numeric types_>`_
 * `integer <numeric types_>`_
 * `bigint <numeric types_>`_
@@ -726,8 +726,6 @@ brackets (``[]``), for example::
     [1, 2, 3]
     ['Zaphod', 'Ford', 'Arthur']
 
-.. _type_conversion:
-
 Special Character Types
 =======================
 
@@ -736,6 +734,8 @@ Special Character Types
 +==========+========+==================+
 | ``char`` | 1 byte | single-byte type |
 +----------+--------+------------------+
+
+.. _type_conversion:
 
 Type Conversion
 ===============
