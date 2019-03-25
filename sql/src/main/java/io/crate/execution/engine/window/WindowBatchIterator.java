@@ -111,7 +111,6 @@ public class WindowBatchIterator extends MappedForwardingBatchIterator<Row, Row>
                         RamAccountingContext ramAccountingContext,
                         int[] orderByIndexes,
                         Input[]... windowFuncArgsInputs) {
-        assert windowDefinition.partitions().size() == 0 : "Window partitions are not supported.";
         assert windowDefinition.windowFrameDefinition().equals(WindowDefinition.DEFAULT_WINDOW_FRAME) : "Custom window frame definitions are not supported";
         assert windowDefinition.orderBy() == null || orderByIndexes.length > 0 : "Window is ordered but the IC indexes are not specified";
 

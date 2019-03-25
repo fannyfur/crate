@@ -25,6 +25,7 @@ package io.crate.expression.eval;
 import io.crate.analyze.OrderBy;
 import io.crate.analyze.WindowDefinition;
 import io.crate.analyze.relations.FieldResolver;
+import io.crate.collections.Lists2;
 import io.crate.data.Input;
 import io.crate.expression.NestableInput;
 import io.crate.expression.reference.ReferenceResolver;
@@ -167,10 +168,10 @@ public class EvaluatingNormalizer {
             Function normalizedFunction = (Function) normalizeFunction(function, context);
             WindowDefinition windowDefinition = function.windowDefinition();
             OrderBy windowOrderBy = windowDefinition.orderBy();
-            if (windowOrderBy != null) {
+            if (!windowDefinition.partitions().isEmpty() || windowOrderBy != null) {
                 windowDefinition = new WindowDefinition(
-                    windowDefinition.partitions(),
-                    windowOrderBy.copyAndReplace(s -> process(s, context)),
+                    Lists2.map(windowDefinition.partitions(), s -> process(s, context)),
+                    windowOrderBy != null ? windowOrderBy.copyAndReplace(s -> process(s, context)) : null,
                     windowDefinition.windowFrameDefinition()
                 );
             }

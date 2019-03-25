@@ -111,10 +111,10 @@ public abstract class FunctionCopyVisitor<C> extends SymbolVisitor<C, Symbol> {
         Function processedFunction = processAndMaybeCopy(windowFunction, context);
         WindowDefinition windowDefinition = windowFunction.windowDefinition();
         OrderBy windowOrderBy = windowDefinition.orderBy();
-        if (windowOrderBy != null) {
+        if (!windowDefinition.partitions().isEmpty() || windowOrderBy != null) {
             windowDefinition = new WindowDefinition(
                 Lists2.map(windowDefinition.partitions(), s -> process(s, context)),
-                windowOrderBy.copyAndReplace(s -> process(s, context)),
+                windowOrderBy != null ? windowOrderBy.copyAndReplace(s -> process(s, context)) : null,
                 windowDefinition.windowFrameDefinition()
             );
         }
